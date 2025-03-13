@@ -1,6 +1,6 @@
 Package: zephyr
 Title: Structured Messages and Options
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Aksel", "Thomsen", , "oath@novonordisk.com", role = c("aut", "cre")),
     person("Mathias Lerbech", "Jeppesen", , "nmlj@novonordisk.com", role = "aut"),
@@ -25,7 +25,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2025-01-28 09:59:36 UTC; oath
+Packaged: 2025-03-13 10:18:33 UTC; oath
 Author: Aksel Thomsen [aut, cre],
   Mathias Lerbech Jeppesen [aut],
   Cervan Girard [aut],
@@ -36,4 +36,4 @@ Author: Aksel Thomsen [aut, cre],
   Novo Nordisk A/S [cph]
 Maintainer: Aksel Thomsen <oath@novonordisk.com>
 Repository: CRAN
-Date/Publication: 2025-01-28 10:30:02 UTC
+Date/Publication: 2025-03-13 10:40:03 UTC
