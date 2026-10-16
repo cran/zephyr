@@ -5,7 +5,8 @@ run_output <- function(func, extra_lib, args = list()) {
     args = args,
     show = TRUE,
     libpath = libpath,
-    spinner = FALSE
+    spinner = FALSE,
+    env = c(callr::rcmd_safe_env(), R_USER_CACHE_DIR = tempfile())
   )
 }
 
@@ -18,7 +19,8 @@ run_output_project <- function(func, extra_lib, project) {
     args = list(project = project, func = func),
     show = TRUE,
     libpath = libpath,
-    spinner = FALSE
+    spinner = FALSE,
+    env = c(callr::rcmd_safe_env(), R_USER_CACHE_DIR = tempfile())
   )
 }
 
@@ -61,15 +63,18 @@ test_that("integration in new package", {
   }
 
   run_output(
-    \(p) devtools::install( # nolint: brace_linter
-      pkg = p,
-      quiet = TRUE,
-      quick = TRUE
-    ),
+    \(p) {
+      devtools::install(
+        # nolint: brace_linter
+        pkg = p,
+        quiet = TRUE,
+        quick = TRUE
+      )
+    },
     libpath,
     list(p = pkg)
   ) |>
-    expect_true()
+    expect_no_error()
 
   # Use in new package
 
@@ -80,7 +85,12 @@ test_that("integration in new package", {
   # Only to not get warnings below
   run_output_project(\() usethis::use_mit_license(), libpath, testpkg)
 
+  # Snapshot created rd files to not have changes in messages due to
+  # roxygen2 versions.
   run_output_project(\() devtools::document(quiet = TRUE), libpath, testpkg) |>
+    capture.output()
+
+  run_output_project(\() list.files("man"), libpath, testpkg) |>
     expect_snapshot()
 
   run_output_project(
@@ -88,7 +98,7 @@ test_that("integration in new package", {
     libpath,
     testpkg
   ) |>
-    expect_true()
+    expect_no_error()
 })
 
 test_that("use in new package", {
@@ -107,19 +117,25 @@ test_that("use in new package", {
     expect_output("hello there")
 
   run_output(
-    \() withr::with_envvar( # nolint: brace_linter
-      list(R_TESTPKG_GREETING = "hej"),
-      testpkg::greet("there")
-    ),
+    \() {
+      withr::with_envvar(
+        # nolint: brace_linter
+        list(R_TESTPKG_GREETING = "hej"),
+        testpkg::greet("there")
+      )
+    },
     libpath
   ) |>
     expect_output("hej there")
 
   run_output(
-    \() withr::with_options( # nolint: brace_linter
-      list(testpkg.greeting = "hi"),
-      testpkg::greet("there")
-    ),
+    \() {
+      withr::with_options(
+        # nolint: brace_linter
+        list(testpkg.greeting = "hi"),
+        testpkg::greet("there")
+      )
+    },
     libpath
   ) |>
     expect_output("hi there")
@@ -128,37 +144,49 @@ test_that("use in new package", {
     expect_equal("verbose")
 
   run_output(
-    \() withr::with_options( # nolint: brace_linter
-      list(zephyr.verbosity_level = "minimal"),
-      zephyr::get_verbosity_level(.envir = "testpkg")
-    ),
+    \() {
+      withr::with_options(
+        # nolint: brace_linter
+        list(zephyr.verbosity_level = "minimal"),
+        zephyr::get_verbosity_level(.envir = "testpkg")
+      )
+    },
     libpath
   ) |>
     expect_equal("minimal")
 
   run_output(
-    \() withr::with_options( # nolint: brace_linter
-      list(testpkg.verbosity_level = "debug"),
-      zephyr::get_verbosity_level(.envir = "testpkg")
-    ),
+    \() {
+      withr::with_options(
+        # nolint: brace_linter
+        list(testpkg.verbosity_level = "debug"),
+        zephyr::get_verbosity_level(.envir = "testpkg")
+      )
+    },
     libpath
   ) |>
     expect_equal("debug")
 
   run_output(
-    \() withr::with_options( # nolint: brace_linter
-      list(zephyr.verbosity_level = "minimal"),
-      testpkg::greet("there")
-    ),
+    \() {
+      withr::with_options(
+        # nolint: brace_linter
+        list(zephyr.verbosity_level = "minimal"),
+        testpkg::greet("there")
+      )
+    },
     libpath
   ) |>
     expect_output(NA)
 
   run_output(
-    \() withr::with_options( # nolint: brace_linter
-      list(testpkg.verbosity_level = "quiet"),
-      testpkg::greet("there")
-    ),
+    \() {
+      withr::with_options(
+        # nolint: brace_linter
+        list(testpkg.verbosity_level = "quiet"),
+        testpkg::greet("there")
+      )
+    },
     libpath
   ) |>
     expect_output(NA)

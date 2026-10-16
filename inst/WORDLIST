@@ -18,6 +18,7 @@ Nordisk
 Novo
 NovoNordisk
 Obucina
+ORCID
 OpenSource
 Posix
 Rbuildignore
@@ -72,6 +73,7 @@ params
 pkgdown
 pkgload
 pkgname
+rcmd
 rdname
 renv
 rlang

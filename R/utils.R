@@ -8,10 +8,10 @@ envname <- function(.envir) {
     if (nchar(environmentName(.envir)) > 0) {
       .envir <- environmentName(.envir)
     } else {
-      .envir <- environmentName(parent.env(.envir))
+      .envir <- environmentName(topenv(.envir))
     }
   }
-  if (!is.character(.envir) || .envir == "") {
+  if (!is.character(.envir) || .envir == "" || .envir == "R_GlobalEnv") {
     return(NULL)
   }
   return(.envir)
@@ -33,8 +33,11 @@ sys_getenv <- function(x) {
 #' Special handling of logical vectors to also convert "truthy" values correct
 #' @noRd
 fix_env_class <- function(x, default = x) {
-  if (is.null(x) || is.null(default) ||
-        isTRUE(all.equal(class(x), class(default)))) {
+  if (
+    is.null(x) ||
+      is.null(default) ||
+      isTRUE(all.equal(class(x), class(default)))
+  ) {
     return(x)
   } else if (is.character(x) && !is.vector(default)) {
     return(eval(parse(text = x)))
@@ -59,4 +62,16 @@ coalesce_dots <- function(...) {
     }
   }
   return(NULL)
+}
+
+#' @noRd
+create_option_name <- function(env, name) {
+  paste(env, name, sep = ".") |>
+    tolower()
+}
+
+#' @noRd
+create_envvar_name <- function(env, name) {
+  paste("R", env, name, sep = "_") |>
+    toupper()
 }
